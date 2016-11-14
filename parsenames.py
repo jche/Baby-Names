@@ -53,7 +53,31 @@ for n in name:
                 break
         except:
             double_letter.append(False)
+double_vowel = ['double_vowel']
+for n in name:
+    for i in range(len(n)):
+        try:
+            if n[i]==n[i+1]:
+                # print n + " has " + n[i] + " repeated"
+                if n[i].lower() in ('a', 'e', 'i', 'o', 'u'):
+                    # print "appending for " + n[i]
+                    double_vowel.append(True)
+                    break
+        except:
+            double_vowel.append(False)
+double_consonant = ['double_consonant']
+for n in name:
+    for i in range(len(n)):
+        try:
+            if n[i]==n[i+1]:
+                if n[i].lower() not in ('a', 'e', 'i', 'o', 'u'):
+                    double_consonant.append(True)
+                    break
+        except:
+            double_consonant.append(False)
 
+
+# from http://eayd.in/?p=232
 def sylco(word) :
     word = word.lower()
 
@@ -395,9 +419,11 @@ for n in name:
 # number of syllables
 
 name.insert(0, 'name')
-rows = itertools.izip(year, gender, race, name, count, first_letter, last_letter, name_length, v_c_prop, double_letter, num_syll,
-                      a_count, b_count, c_count, d_count, e_count, f_count, g_count, h_count, i_count, j_count, k_count, l_count, m_count,
-                      n_count, o_count, p_count, q_count, r_count, s_count, t_count, u_count, v_count, w_count, x_count, y_count, z_count)
+rows = itertools.izip(year, gender, race, name, count, first_letter, last_letter, name_length, v_c_prop,
+                      double_letter, double_vowel, double_consonant, num_syll,
+                      a_count, b_count, c_count, d_count, e_count, f_count, g_count, h_count, i_count, j_count,
+                      k_count, l_count, m_count, n_count, o_count, p_count, q_count, r_count, s_count, t_count,
+                      u_count, v_count, w_count, x_count, y_count, z_count)
 with open('babynames3.csv', 'wb') as myfile:
     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
     for item in rows:

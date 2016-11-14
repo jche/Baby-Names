@@ -26,3 +26,4 @@ df2 <- df %>%
 write_csv(df2, path="~/Baby-Names/babynames2.csv")
 ```
 
+## Now pass into Python script
