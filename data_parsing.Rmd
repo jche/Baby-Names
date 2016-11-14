@@ -1,0 +1,28 @@
+---
+title: "Parsing Data"
+author: "jche"
+date: "Sunday, November 13, 2016"
+output: pdf_document
+---
+
+```{r}
+require(mosaic)
+require(readr)
+require(ggplot2)
+require(dplyr)
+```
+
+## Loading Data
+
+```{r}
+df <- read_csv("babynames.csv")
+
+df2 <- df %>%
+  mutate(ETHCTY=ifelse(ETHCTY=="ASIAN AND PACI", "ASIAN AND PACIFIC ISLANDER", ETHCTY)) %>%
+  mutate(ETHCTY=ifelse(ETHCTY=="BLACK NON HISP", "BLACK NON HISPANIC", ETHCTY)) %>%
+  mutate(ETHCTY=ifelse(ETHCTY=="WHITE NON HISP", "WHITE NON HISPANIC", ETHCTY)) %>%
+  distinct()
+
+write_csv(df2, path="~/Baby-Names/babynames2.csv")
+```
+
