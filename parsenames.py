@@ -5,23 +5,33 @@ import pandas
 import re
 import itertools
 
-colnames = ['year', 'gender', 'race', 'name', 'cnt','rank']
+colnames = ['year', 'gender', 'race', 'name', 'cnt','rnk']
 babynames = pandas.read_csv('babynames2.csv', names=colnames)
 year = babynames.year.tolist()
+year.pop(0)
+year.insert(0, 'year')
 gender = babynames.gender.tolist()
+gender.pop(0)
+gender.insert(0, 'gender')
 race = babynames.race.tolist()
-rank = babynames.race.tolist()
+race.pop(0)
+race.insert(0, 'race')
 name = babynames.name.tolist()
 name.pop(0)
-count = babynames.cnt.tolist()
+cnt = babynames.cnt.tolist()
+cnt.pop(0)
+cnt.insert(0, 'count')
+rnk = babynames.rnk.tolist()
+rnk.pop(0)
+rnk.insert(0, 'rank')
 
 first_letter = ['first_letter']
 for n in name:
-    first_letter.append(n[0])
+    first_letter.append(n[0].lower())
 
 last_letter = ['last_letter']
 for n in name:
-    last_letter.append(n[len(n)-1])
+    last_letter.append(n[len(n)-1].lower())
 
 name_length = ['name_length']
 for n in name:
@@ -420,7 +430,7 @@ for n in name:
 # number of syllables
 
 name.insert(0, 'name')
-rows = itertools.izip(year, gender, race, name, count, rank, first_letter, last_letter, name_length, v_c_prop,
+rows = itertools.izip(year, gender, race, name, cnt, rnk, first_letter, last_letter, name_length, v_c_prop,
                       double_letter, double_vowel, double_consonant, num_syll,
                       a_count, b_count, c_count, d_count, e_count, f_count, g_count, h_count, i_count, j_count,
                       k_count, l_count, m_count, n_count, o_count, p_count, q_count, r_count, s_count, t_count,
