@@ -10,6 +10,7 @@ babynames = pandas.read_csv('babynames2.csv', names=colnames)
 year = babynames.year.tolist()
 gender = babynames.gender.tolist()
 race = babynames.race.tolist()
+rank = babynames.race.tolist()
 name = babynames.name.tolist()
 name.pop(0)
 count = babynames.cnt.tolist()
@@ -419,7 +420,7 @@ for n in name:
 # number of syllables
 
 name.insert(0, 'name')
-rows = itertools.izip(year, gender, race, name, count, first_letter, last_letter, name_length, v_c_prop,
+rows = itertools.izip(year, gender, race, name, count, rank, first_letter, last_letter, name_length, v_c_prop,
                       double_letter, double_vowel, double_consonant, num_syll,
                       a_count, b_count, c_count, d_count, e_count, f_count, g_count, h_count, i_count, j_count,
                       k_count, l_count, m_count, n_count, o_count, p_count, q_count, r_count, s_count, t_count,
