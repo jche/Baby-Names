@@ -43,8 +43,17 @@ opts_chunk$set(
 
 > Since the last update, we've wrapped up our preliminary feature extraction from the names. We've done a range of simple univariate and multivariate visualizations to help us get a grasp of what our data look like.
 
-> We've also started fitting some simple classification models to classify names by gender or mother's race/ethnicity. So far, it seems that gender is a slightly easier classification to do. Neither classification, though, will be at all easy, since the data seem not to be highly separable.
+> We've also started fitting some simple classification models to classify names by gender or mother's race/ethnicity. So far, it seems that gender is a slightly easier classification to do. The classifications are going okay, but we can still do more experimentation.
 
 ## Work to do over Break
 
-> We will
+> We found an implementation of Jarvis-Patrick clustering at [http://finzi.psych.upenn.edu/library/ChemmineR/html/jarvisPatrick.html](http://finzi.psych.upenn.edu/library/ChemmineR/html/jarvisPatrick.html). We'll look into implementing it, as well as implementing other clustering algorithms, over break.
+
+> We will also look into extracting more features from the names, to see if any of them can help with classification.
+
+> Finally, we'll do things with the time information, such as:
+
+1. Doing simple visualizations of changes in variables over time
+
+2. Training models on a given year and testing them on the next year, then seeing what names these models get wrong to perhaps get some insight into changing name trends
+
