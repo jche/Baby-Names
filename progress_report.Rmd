@@ -1,0 +1,50 @@
+---
+title: "Progress Report"
+author: "Group 4 - Jonathan Che and David Green"
+date: "11/17/2016"
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include=FALSE}
+# Don't delete this chunk if you are using the mosaic package
+# This loads the mosaic and dplyr packages
+require(mosaic)
+```
+
+```{r, include=FALSE}
+# Some customization.  You can alter or delete as desired (if you know what you are doing).
+
+# This changes the default colors in lattice plots.
+trellis.par.set(theme=theme.mosaic())  
+
+# knitr settings to control how R chunks work.
+require(knitr)
+opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small"    # slightly smaller font for code
+)
+
+```{r, include=FALSE}
+# Load additional packages here.  Uncomment the line below to use Project MOSAIC data sets.
+# require(mosaicData)   
+```
+
+## Work done so far
+
+> Since the last update, we've wrapped up our preliminary feature extraction from the names. We've done a range of simple univariate and multivariate visualizations to help us get a grasp of what our data look like.
+
+> We've also started fitting some simple classification models to classify names by gender or mother's race/ethnicity. So far, it seems that gender is a slightly easier classification to do. Neither classification, though, will be at all easy, since the data seem not to be highly separable.
+
+## Work to do over Break
+
+> We will
