@@ -218,224 +218,53 @@ num_syll = ['num_syllables']
 for n in name:
     num_syll.append(sylco(n))
 
-a_count=["num_a"]
+alphabet = ('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z')
+letter_count = {}
+for letter in alphabet:
+    value = letter + "_count"
+    letter_count[letter] = [value]
+for let in alphabet:
+    for n in name:
+        x=0
+        for letter in n:
+            if letter.lower() == let:
+                print "yay"
+                x=x+1
+        letter_count[let].append(x)
+
+num_cons=["num_consonants"]
+cons_prop=["consonant_prop"]
 for n in name:
     x=0
-    for i in range(len(n)):
-        if n[i]=='A' or n[i]=='a':
+    for letter in n:
+        if letter not in vowels:
             x=x+1
-    a_count.append(x)
+    num_cons.append(x)
+    y=x/len(n)
+    cons_prop.append(y)
 
-b_count=["num_b"]
+num_vowels=["num_vowels"]
+vowels_prop=["vowel_prop"]
 for n in name:
     x=0
-    for i in range(len(n)):
-        if n[i]=='B' or n[i]=='b':
+    for letter in n:
+        if letter in vowels:
             x=x+1
-    b_count.append(x)
+    num_vowels.append(x)
+    y=x/len(n)
+    vowels_prop.append(y)
 
-c_count=["num_c"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='C' or n[i]=='c':
-            x=x+1
-    c_count.append(x)
-
-d_count=["num_d"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='D' or n[i]=='d':
-            x=x+1
-    d_count.append(x)
-
-e_count=["num_e"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='E' or n[i]=='e':
-            x=x+1
-    e_count.append(x)
-
-f_count=["num_f"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='F' or n[i]=='f':
-            x=x+1
-    f_count.append(x)
-
-g_count=["num_g"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='G' or n[i]=='g':
-            x=x+1
-    g_count.append(x)
-
-h_count=["num_h"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='H' or n[i]=='h':
-            x=x+1
-    h_count.append(x)
-
-i_count=["num_i"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='I' or n[i]=='i':
-            x=x+1
-    i_count.append(x)
-
-j_count=["num_j"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='J' or n[i]=='j':
-            x=x+1
-    j_count.append(x)
-
-k_count=["num_k"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='K' or n[i]=='k':
-            x=x+1
-    k_count.append(x)
-
-l_count=["num_l"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='L' or n[i]=='l':
-            x=x+1
-    l_count.append(x)
-
-m_count=["num_m"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='M' or n[i]=='m':
-            x=x+1
-    m_count.append(x)
-
-n_count=["num_n"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='N' or n[i]=='n':
-            x=x+1
-    n_count.append(x)
-
-o_count=["num_o"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='O' or n[i]=='o':
-            x=x+1
-    o_count.append(x)
-
-p_count=["num_p"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='P' or n[i]=='p':
-            x=x+1
-    p_count.append(x)
-
-q_count=["num_q"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='Q' or n[i]=='q':
-            x=x+1
-    q_count.append(x)
-
-r_count=["num_r"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='R' or n[i]=='r':
-            x=x+1
-    r_count.append(x)
-
-s_count=["num_s"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='S' or n[i]=='s':
-            x=x+1
-    s_count.append(x)
-
-t_count=["num_t"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='T' or n[i]=='t':
-            x=x+1
-    t_count.append(x)
-
-u_count=["num_u"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='U' or n[i]=='u':
-            x=x+1
-    u_count.append(x)
-
-v_count=["num_v"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='V' or n[i]=='v':
-            x=x+1
-    v_count.append(x)
-
-w_count=["num_w"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='W' or n[i]=='w':
-            x=x+1
-    w_count.append(x)
-
-x_count=["num_x"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='X' or n[i]=='x':
-            x=x+1
-    x_count.append(x)
-
-y_count=["num_y"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='Y' or n[i]=='y':
-            x=x+1
-    y_count.append(x)
-
-z_count=["num_z"]
-for n in name:
-    x=0
-    for i in range(len(n)):
-        if n[i]=='Z' or n[i]=='z':
-            x=x+1
-    z_count.append(x)
-
-# vowel/consonant proportion
-# number of syllables
 
 name.insert(0, 'name')
 rows = itertools.izip(year, gender, race, name, cnt, rnk, first_letter, last_letter, name_length, v_c_prop,
                       double_letter, double_vowel, double_consonant, num_syll,
-                      a_count, b_count, c_count, d_count, e_count, f_count, g_count, h_count, i_count, j_count,
-                      k_count, l_count, m_count, n_count, o_count, p_count, q_count, r_count, s_count, t_count,
-                      u_count, v_count, w_count, x_count, y_count, z_count)
-with open('babynames3.csv', 'wb') as myfile:
+                      letter_count['a'], letter_count['b'], letter_count['c'], letter_count['d'], letter_count['e'],
+                      letter_count['f'], letter_count['g'], letter_count['h'], letter_count['i'], letter_count['j'],
+                      letter_count['k'], letter_count['l'], letter_count['m'], letter_count['n'], letter_count['o'],
+                      letter_count['p'], letter_count['q'], letter_count['r'], letter_count['s'], letter_count['t'],
+                      letter_count['u'], letter_count['v'], letter_count['w'], letter_count['x'], letter_count['y'],
+                      letter_count['z'], num_cons, num_vowels, cons_prop, vowels_prop)
+with open('babynames4.csv', 'wb') as myfile:
     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
     for item in rows:
         wr.writerow(item)
