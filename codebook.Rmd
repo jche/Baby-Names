@@ -1,0 +1,197 @@
+---
+title: "Codebook, Analysis Plan"
+author: "Group 5 - Jonathan Che and David Green"
+date: "Sunday, November 13, 2016"
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include=FALSE}
+# Don't delete this chunk if you are using the mosaic package
+# This loads the mosaic and dplyr packages
+require(mosaic)
+require(readr)
+```
+
+```{r, include=FALSE}
+# Some customization.  You can alter or delete as desired (if you know what you are doing).
+
+# This changes the default colors in lattice plots.
+trellis.par.set(theme=theme.mosaic())  
+
+# knitr settings to control how R chunks work.
+require(knitr)
+opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small"    # slightly smaller font for code
+)
+
+```{r, include=FALSE}
+# Load additional packages here.  Uncomment the line below to use Project MOSAIC data sets.
+# require(mosaicData)   
+```
+
+```{r, include=FALSE}
+df2 <- read_csv("babynames3.csv")
+```
+
+# Codebook
+
+1. `year`: The year of the child's birth
+
+```{r, echo=FALSE, warning=FALSE}
+tally(~year, data=df2)
+```
+
+2. `gender`: The gender of the child
+
+```{r, echo=FALSE}
+tally(~gender, data=df2)
+```
+
+3. `race`: The race/ethnicity of the child's mother
+
+```{r, echo=FALSE}
+tally(~race, data=df2)
+```
+
+4. `name`: The name of the child
+
+```{r}
+length(unique(df2$name))   # Number of unique names
+head(df2$name)
+```
+
+5. `count`: The number of children with the name, in the given year, of the given gender, of the given maternal race/ethnicity.
+
+```{r, echo=FALSE}
+foo <- df2 %>%
+  filter(name == "NATALIE") %>%
+  select(year, race, name, count)
+foo
+```
+
+6. `rank`: The rank of name popularity, in the given year, of the given gender, of the given maternal race/ethnicity. Lower values indicate higher popularity. Ties are allowed (e.g. if two names both have 13 occurrences, they get the same rank)
+
+```{r, echo=FALSE}
+foo <- df2 %>%
+  filter(year == 2011) %>%
+  filter(race == "HISPANIC") %>%
+  select(year, gender, race, name, count, rank) %>%
+  arrange(rank)
+head(foo)
+```
+
+7. `first_letter`: The first letter of the child's name (A-Z).
+
+```{r, echo=FALSE}
+tally(~first_letter, data=df2)
+```
+
+8. `last_letter`: The last letter of the child's name (A-Z).
+
+```{r, echo=FALSE}
+tally(~last_letter, data=df2)
+```
+
+9. `name_length`: The length (in letters) of the child's name.
+
+```{r, echo=FALSE}
+tally(~name_length, data=df2)
+```
+
+10. `vowel_consonant_prop`: The ratio of vowels:consonants in the child's name, i.e. (number of vowels)/(number of consonants).
+
+```{r, echo=FALSE}
+foo <- df2[1:5,] %>%
+  select(name, vowel_consonant_prop)
+foo
+favstats(vowel_consonant_prop, data=df2)
+```
+
+11. `double_letter`: TRUE if there are two of the same letters in a row in the word, FALSE if not
+```{r, echo=FALSE}
+tally(~double_letter, data=df2)
+```
+
+12. `double_vowel`: TRUE if there are two of the same vowels in a row in the word, FALSE if not
+```{r, echo=FALSE}
+tally(~double_vowel, data=df2)
+```
+
+13. `double_consonant`: TRUE if there are two of the same consonants in a row in the word, FALSE if not
+```{r, echo=FALSE}
+tally(~double_consonant, data=df2)
+```
+
+14. `num_syllables`: The number of syllables in the word, as determined by the code at http://eayd.in/?p=232. This code claims to have a very high success rate with everyday English words, so we could expect it to have a lower success rate with names that might be pronounced unusually or derive themselves from different languages. However, this metric could still prove useful for general trends.
+```{r, echo=FALSE}
+tally(~num_syllables, data=df2)
+favstats(~num_syllables, data=df2)
+```
+
+15. `num_[letter]`: (Variables 15-40) The number of [letter]s in the word, with one variable for every letter in the alphabet. For example, for the letter A:
+```{r, echo=FALSE}
+tally(~num_a, data=df2)
+favstats(~num_a, data=df2)
+```
+
+# Analysis Plan
+
+We will implement clustering and classification methods to better understand our data. Our approach will be twofold. 
+
+First, we will flatten our data by name, mother's race/ethnicity, and child gender, and use clustering methods on these data to see whether names are separable by race/ethnicity and/or gender. We may also perform factor analysis to determine some underlying characteristics of names.
+
+Second, we will analyze how the characteristics/clusters that we found change over time. We will use the year data to perform year-by-year analyses of popular child names.
+
+We show some preliminary graphs that suggest some patterns in our data:
+
+```{r}
+ggplot(data = df2, aes(x=gender, y=num_a)) + 
+  geom_jitter() +
+  labs(title="Number of As in Name by Gender",
+       x="Gender",
+       y="Number of As in Child's Name")
+```
+
+We see from this jitter plot that female names generally have more "a"s than male names, as we may have previously suspected.
+
+```{r}
+foo <- data.frame(tally(last_letter~race, data=df2, format="proportion"))
+ggplot(foo, aes(x=race, y=last_letter)) +
+  geom_raster(aes(fill=Freq)) +
+  labs(title="Last Letter of Name by Race/Ethnicity",
+       x="Mother's Race/Ethnicity",
+       y="Last Letter of Child's Name",
+       fill="Proportion")
+```
+
+This chart shows the last letter of child names by mother's race/ethnicity. Generally speaking, looking across the 'columns', we notice that mothers of all races/ethnicities tend to give their children names with similar last letters. We do see, however, some deviations from this pattern. For example, black non-hispanic mothers tend to give their children names that end with "h" more often than do mothers of other races.
+
+```{r}
+foo <- data.frame(tally(name_length ~ vowel_consonant_prop, data=df2))
+foo$vowel_consonant_prop <- as.numeric(as.character(foo$vowel_consonant_prop))
+foo <- foo %>%
+  filter(Freq > 0)
+ggplot(foo, aes(x=name_length, y=vowel_consonant_prop)) +
+  geom_point(aes(size=Freq)) +
+  labs(title="Vowel/Consonant Proportion vs. Name Length",
+       x="Length of Child's Name",
+       y="Vowel/Consonant Proportion of Child's Name",
+       size="Frequency")
+```
+
+This chart shows the vowel/consonant proportion by name length. We see that longer names tend to be more consonant-heavy, while mid-length names tend to be more vowel-heavy.
+
+# Expository Component
+
+For our expository topic, Jonathan and I would tentatively like to look into the Jarvis-Patrick clustering algorithm. (Alternatively, we may want to study a classification method not touched on much in class, but since we haven’t reached this section yet, it is hard to know whether it would be of interest.) The Jarvis-Patrick algorithm clusters looks at all the points that fall within a given radius of a each point, and that set of points is considered each point’s “neighbor”. Then, the algorithm clusters points based off of how many common neighboring points they share. For example, if two points share more neighbors than any other two points, they would become the first cluster. With this method arises many fascinating questions. For instance, how are a cluster’s neighbors determined? By distance from the average, least squares, or some other point? Moreover, how much of an impact does adjusting the radius used affect the clustering pattern and dendrogram? Finally, In using the Jarvis-Patrick clustering algorithm, we could dedicate a portion of our project to comparing its results with that of other methods, such as single link, complete link, and Wald. Do you know of the J-P method? Would it be a good candidate for further inquiry? Is there a different expository topic surrounding classification that would be more relevant to our baby names data set?

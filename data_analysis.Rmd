@@ -1,0 +1,193 @@
+---
+title: "Data Analysis"
+author: "Group 4 - Jonathan Che and David Green"
+date: ""
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include=FALSE}
+# Don't delete this chunk if you are using the mosaic package
+# This loads the mosaic and dplyr packages
+require(mosaic)
+require(readr)
+require(rpart) # for classification trees
+require(class) # for kNN methods
+require(randomForest) # for random forests
+require(cluster)
+```
+
+```{r, include=FALSE}
+# Some customization.  You can alter or delete as desired (if you know what you are doing).
+
+# This changes the default colors in lattice plots.
+trellis.par.set(theme=theme.mosaic())  
+
+# knitr settings to control how R chunks work.
+require(knitr)
+opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small"    # slightly smaller font for code
+)
+```
+
+```{r, include=FALSE}
+df <- read_csv("babynames4.csv")
+```
+
+## Data Cleaning
+
+```{r, warning=FALSE}
+df2 <- data.frame(lapply(df[,1:3], function(x) as.factor(x)),
+                  df[,4:6],
+                  lapply(df[,7:8], function(x) as.factor(x)),
+                  df[,9:10],
+                  lapply(df[,11:13], function(x) as.logical(x)),
+                  df[14:44])
+
+df3 <- df2 %>%
+  select(-count, -rank, -name)
+
+df2011 <- df3 %>%
+  filter(year == "2011")
+df2011a <- df2011 %>%   # Only numerical variables, no letter counts
+  select(gender, name_length, vowel_consonant_prop, double_letter, double_vowel, 
+         double_consonant, num_syllables, num_consonants, num_vowels,
+         consonant_prop, vowel_prop)
+df2011b <- df2011[,12:37]   # Only letter counts
+```
+
+## Visualizations
+
+```{r}
+# Insignificant differences unless otherwise noted
+ggplot(df3, aes(x=gender, y=name_length)) +
+  geom_boxplot()
+ggplot(df3, aes(x=gender, y=vowel_consonant_prop)) +   # girls have more vowels/consonant
+  geom_boxplot()
+ggplot(df3, aes(x=gender, y=num_syllables)) +
+  geom_boxplot()
+ggplot(df3, aes(x=gender, y=name_length)) +
+  geom_boxplot()
+ggplot(df3, aes(x=gender, y=num_vowels)) +
+  geom_boxplot()
+ggplot(df3, aes(x=gender, y=num_consonants)) +
+  geom_boxplot()
+
+ggplot(df3, aes(x=name_length, y=num_syllables, color=race)) +
+  geom_jitter()
+```
+
+
+## Clustering
+
+```{r}
+# http://finzi.psych.upenn.edu/library/ChemmineR/html/jarvisPatrick.html
+
+# Clustering means that we don't want highly correlated variables, so we check correlations first
+df2011.cluster1 <- df2011a %>%
+  select(gender, vowel_prop, double_letter, name_length, num_syllables)
+cor(df2011.cluster1[,-1], method="kendall")
+
+# Heirarchical clustering on df2011.cluster1
+dist1=dist(scale(df2011.cluster1[,-1])) #Statistical distances
+hcward=hclust(dist1,method="ward.D") 
+plot(hcward)   # 4 clusters emerge
+hcward.sol=as.factor((cutree(hcward, k = 4)))
+summary(hcward.sol)
+foo <- data.frame(df2011, hcward.sol)
+
+ggplot(foo, aes(x=hcward.sol, y=vowel_prop)) +
+  geom_boxplot()
+ggplot(foo, aes(x=hcward.sol, y=name_length)) +   # Cluster 2 has shorter names
+  geom_boxplot()
+ggplot(foo, aes(x=hcward.sol, y=num_syllables)) +
+  geom_boxplot()
+tally(gender~hcward.sol, data=foo)   # Cluster 4 is mostly male, 3 is balanced, 1&3 mostly female
+tally(double_letter~hcward.sol, data=foo)   # Cluster 3 is the names with double letters
+```
+
+```{r}
+# cor(df2011b, method="kendall")   # takes a long time to run, no significant correlations
+
+# Heirarchical clustering on df2011.cluster1
+dist2=dist(df2011b) #Statistical distances
+hcward2=hclust(dist2, method="ward.D") 
+plot(hcward2)   # 6ish clusters emerge
+hcward.sol2=as.factor(cutree(hcward2, k = 6))
+summary(hcward.sol2)
+bar <- data.frame(df2011, hcward.sol2)
+
+ggplot(bar, aes(x=hcward.sol2, y=num_consonants)) +   # Cluster 1 has more consonants, cluster 6 has fewer
+  geom_boxplot()
+ggplot(bar, aes(x=hcward.sol2, y=name_length)) +
+  geom_boxplot()
+ggplot(bar, aes(x=hcward.sol2, y=consonant_prop)) +
+  geom_boxplot()
+
+options(digits=1)
+tally(a_count~hcward.sol2, data=bar, format="proportion")   # cluster 6 has more a
+tally(l_count~hcward.sol2, data=bar, format="proportion")
+tally(n_count~hcward.sol2, data=bar, format="proportion")
+tally(e_count~hcward.sol2, data=bar, format="proportion")   # cluster 1 has more e
+
+
+tally(gender~hcward.sol2, data=bar)   # nothing...
+tally(double_letter~hcward.sol2, data=bar)   
+```
+
+## Simple Tree
+
+```{r}
+bf.control=rpart.control(minsplit=100,minbucket=20,xval=5)
+bf.treeorig=rpart(gender ~.,data=df2011a,method="class",control=bf.control)
+plot(bf.treeorig)
+text(bf.treeorig,cex=.7)
+printcp(bf.treeorig)
+```
+
+## Random Forest
+
+```{r}
+set.seed(40)
+bf.rf=randomForest(gender ~., data=df2011a,mtry=3,ntree=100,importance=T,proximity=T)
+bf.rf
+table(df2011a$gender,predict(bf.rf,df2011a))
+
+hist(treesize(bf.rf))
+varImpPlot(bf.rf)
+```
+
+> With only a few variables, we achieve cross-validation error of 30%. Vowel/Consonant proportion is the most important variable here.
+
+```{r}
+set.seed(40)
+bf.rf2=randomForest(gender ~., data=df2011,mtry=3,ntree=100,importance=T,proximity=T)
+bf.rf2
+table(df2011$gender,predict(bf.rf2,df2011))
+
+hist(treesize(bf.rf2))
+varImpPlot(bf.rf2)
+```
+
+> With all of the variables, the cross-validation error goes down to 12%. The first and last letter, as well as the amount of vowels matter a lot, but vowel/consonant proportion is still relatively important.
+
+## NN Method
+
+```{r}
+bf.knn=knn(df2011a[,-1],df2011a[,-1],df2011[,"gender"],k=3,prob=T)
+table(df2011a$gender,bf.knn)
+```
+
+> The nearest neighbor method gives similar results to the random forest (with the numerical variables only).
+
+
