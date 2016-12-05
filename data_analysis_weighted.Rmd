@@ -1,5 +1,5 @@
 ---
-title: "Data Analysis on Unweighted Names"
+title: "Data Analysis on Weighted Names"
 author: "Group 4 - Jonathan Che and David Green"
 date: ""
 output: 
@@ -53,8 +53,11 @@ df2 <- data.frame(lapply(df[,1:3], function(x) as.factor(x)),
                   df[,9:10],
                   lapply(df[,11:13], function(x) as.logical(x)),
                   df[14:44])
+df2.rep <- df2[rep(seq(dim(df2)[1]), df2$count), ]   # WE REPEAT THE DATA BY COUNT
+df2.rep.samp <- df2.rep %>%
+  sample_n(10000, replace=TRUE)   # Sample too large
 
-df3 <- df2 %>%
+df3 <- df2.rep.samp %>%
   select(-count, -rank, -name)
 
 df2011 <- df3 %>%
@@ -194,5 +197,4 @@ table(df2011a$gender,bf.knn)
 ```
 
 > The nearest neighbor method gives similar results to the random forest (with the numerical variables only).
-
 
