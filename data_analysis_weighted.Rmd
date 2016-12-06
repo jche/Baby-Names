@@ -1,6 +1,6 @@
 ---
 title: "Data Analysis on Weighted Names"
-author: "Group 4 - Jonathan Che and David Green"
+author: "Group 5 - Jonathan Che and David Green"
 date: ""
 output: 
   pdf_document:
