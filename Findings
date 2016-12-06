@@ -1,2 +1,15 @@
+Gameplan:
+
+When recruiters view the resumes of prospective job applicants, they get a wide range of information. Usually, though, the applicant's gender and/or race are not explicitly listed on the resume (even though they may be listed in a separate application). Instead, the recruiter gets an idea of this information by looking at the applicant's name.
+
+Psychological research indicates that implicit bias in hiring can affect application outcomes. Though we may not recognize it, we often react differently to "Samantha Smith" than "Samuel Smith", for example. There has been a lot of interesting work done in this area, particularly in recent times. 
+
+In our project, we aim to do two different things. First, we examine interesting differences (or non-differences) between the characteristics of names of different genders or races.
+
+Second, we examine algorithmic methods for classifying names by gender or race. We classify based on computable characteristics of names. The purpose of such a study is to develop a general "baseline" for the "x-ness" of certain names. For example, we might expect a name such as "Michael" to be more "male" than a name like "Jesse." If a reasonably accurate method of classification exists, researchers could use it to automatically and objectively characterize names. There could be replicable studies of seeing how the "male-ness" of a name, for example, affects certain things.
+
+Results:
+
 Interesting findings in our data:
 
+Classification outcomes:
