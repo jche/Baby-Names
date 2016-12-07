@@ -1,0 +1,185 @@
+---
+title: "Classification"
+author: "Group 5 - Jonathan Che and David Green"
+date: ""
+output: 
+  ptrain_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include=FALSE}
+# Don't delete this chunk if you are using the mosaic package
+# This loads the mosaic and dplyr packages
+require(mosaic)
+require(readr)
+require(randomForest) # for random forests
+```
+
+```{r, include=FALSE}
+# Some customization.  You can alter or delete as desired (if you know what you are doing).
+
+# This changes the default colors in lattice plots.
+trellis.par.set(theme=theme.mosaic())  
+
+# knitr settings to control how R chunks work.
+require(knitr)
+opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small"    # slightly smaller font for code
+)
+```
+
+```{r, include=FALSE}
+train <- read_csv("babynames4.csv")
+test2012 <- read_csv("testdata2012.csv")
+test2005 <- read_csv("testdata2005.csv")
+test2000 <- read_csv("testdata2000.csv")
+test1995 <- read_csv("testdata1995.csv")
+test1900 <- read_csv("testdata1900.csv")
+```
+
+## Data Cleaning
+
+```{r, warning=FALSE}
+train <- data.frame(lapply(train[,1:3], function(x) as.factor(x)),
+                  train[,4:6],
+                  lapply(train[,7:8], function(x) as.factor(x)),
+                  train[,9:10],
+                  lapply(train[,11:13], function(x) as.logical(x)),
+                  train[14:44])
+train2011 <- train %>%
+  filter(year == 2011)
+train2011.rep <- train2011[rep(seq(dim(train2011)[1]), train2011$count), ]   # WE REPEAT THE DATA BY COUNT
+train2011.rep.samp <- train2011.rep %>%
+  sample_n(10000, replace=TRUE)   # Sample too large
+train2011.final <- train2011.rep.samp %>%
+  select(-year, -race, -name, -count, -rank)
+rm(train2011.rep)
+rm(train2011.rep.samp)
+rm(train2011)
+```
+
+```{r}
+clean_test_data <- function(df){
+  df <- data.frame(df[,1],
+                    lapply(df[,2], function(x) as.factor(x)),
+                    df[,3:4],
+                    lapply(df[,5:6], function(x) as.factor(x)),
+                    df[,7:8],
+                    lapply(df[,9:11], function(x) as.logical(x)),
+                    df[12:42])
+  df.rep <- df[rep(seq(dim(df)[1]), df$count_norm), ]   # WE REPEAT THE DATA BY COUNT
+  df.final <- df.rep %>%
+    select(-count_norm, -name, -count) %>%
+    mutate(gender = ifelse(gender=="M", "MALE", "FEMALE")) %>%
+    mutate(gender = as.factor(gender))
+  levels(df.final$first_letter) <- levels(train2011.final$first_letter)
+  levels(df.final$last_letter) <- levels(train2011.final$last_letter)
+  return(df.final)
+}
+```
+
+```{r}
+test2012.final <- clean_test_data(test2012)
+test2005.final <- clean_test_data(test2005)
+test2000.final <- clean_test_data(test2000)
+test1995.final <- clean_test_data(test1995)
+test1900.final <- clean_test_data(test1900)
+```
+
+
+## Random Forest
+
+> We train a model on the 2011 training data
+
+```{r}
+set.seed(40)
+rf_2011=randomForest(gender ~., data=train2011.final,mtry=10,ntree=100,importance=T,proximity=T)
+foo <- table(train2011.final$gender,predict(rf_2011,train2011.final)); foo
+(foo[1,2]+foo[2,1])/sum(foo)   # Very low AER
+varImpPlot(rf_2011)
+```
+
+> We build a function that allows us to analyze a given year
+
+```{r}
+analyze_year <- function(year){
+  df <- get(paste("test", year, ".final", sep=""))
+  table_name <- paste("table", year, sep="")
+  error <- paste("error", year, sep="")
+  errorm <- paste("error", year, "_m", sep="")
+  errorf <- paste("error", year, "_f", sep="")
+  
+  assign(table_name, table(df$gender,predict(rf_2011, df)))
+  table <- get(table_name)
+  assign(error, (table[1,2]+table[2,1])/sum(table))
+  assign(errorm, (table[2,1])/sum(table))
+  assign(errorf, (table[1,2])/sum(table))
+  
+  return(c(table, get(error), get(errorm), get(errorf)))
+}
+```
+
+> We test our model on the 2012 testing data
+
+```{r}
+info2012 <- analyze_year(2012)
+rbind(info2012[c(1,3)], info2012[c(2,4)])
+```
+
+> We test our model on the 2005 testing data
+
+```{r}
+info2005 <- analyze_year(2005)
+rbind(info2005[c(1,3)], info2005[c(2,4)])
+```
+
+> We test our model on the 2000 testing data
+
+```{r}
+info2000 <- analyze_year(2000)
+rbind(info2000[c(1,3)], info2000[c(2,4)])
+```
+
+> We test our model on the 1995 testing data
+
+```{r}
+info1995 <- analyze_year(1995)
+rbind(info1995[c(1,3)], info1995[c(2,4)])
+```
+
+> We test our model on the 1900 testing data
+
+```{r}
+info1900 <- analyze_year(1900)
+rbind(info1900[c(1,3)], info1900[c(2,4)])
+```
+
+## Conclusions from Time Study
+
+```{r}
+years <- c(1900, 1995, 2000, 2005, 2012)
+errors <- c(info1900[5], info1995[5], info2000[5], info2005[5], info2012[5])
+errorsm <- c(info1900[6], info1995[6], info2000[6], info2005[6], info2012[6])
+errorsf <- c(info1900[7], info1995[7], info2000[7], info2005[7], info2012[7])
+
+df <- data.frame(years, errors, errorsm, errorsf)
+ggplot(df, aes(x=years, y=errors)) +
+  geom_point()
+ggplot(df, aes(x=years, y=errorsm)) +
+  geom_point()
+ggplot(df, aes(x=years, y=errorsf)) +
+  geom_point()
+```
+
+> We see that it gets more difficult over time, as expected.
+
+> Very interestingly, it's only the female names that get more difficult over time. The male names remain similar.
