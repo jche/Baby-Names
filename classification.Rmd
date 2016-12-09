@@ -21,6 +21,7 @@ output:
 require(mosaic)
 require(readr)
 require(randomForest) # for random forests
+require(xgboost)
 ```
 
 ```{r, include=FALSE}
@@ -49,13 +50,18 @@ test1900 <- read_csv("testdata1900.csv")
 ## Data Cleaning
 
 ```{r, warning=FALSE}
+for (letter in c("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z")){
+    train <- rbind(train, c(2011,"FEMALE","HISPANIC","Foo",1,1,letter,letter,0,0,"False","False","False",0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+}
 train <- data.frame(lapply(train[,1:3], function(x) as.factor(x)),
                   train[,4:6],
                   lapply(train[,7:8], function(x) as.factor(x)),
                   train[,9:10],
                   lapply(train[,11:13], function(x) as.logical(x)),
-                  train[14:44])
+                  lapply(train[14:44], function(x) as.numeric(x)))
 train2011 <- train %>%
+  filter(name != "Foo") %>%
   filter(year == 2011)
 train2011.rep <- train2011[rep(seq(dim(train2011)[1]), train2011$count), ]   # WE REPEAT THE DATA BY COUNT
 train2011.rep.samp <- train2011.rep %>%
@@ -69,6 +75,10 @@ rm(train2011)
 
 ```{r}
 clean_test_data <- function(df){
+  for (letter in levels(train2011.final$first_letter)){
+    df <- rbind(df, c("Foo","F",1,1,letter,letter,0,0,FALSE,FALSE,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+    }
   df <- data.frame(df[,1],
                     lapply(df[,2], function(x) as.factor(x)),
                     df[,3:4],
@@ -76,14 +86,14 @@ clean_test_data <- function(df){
                     df[,7:8],
                     lapply(df[,9:11], function(x) as.logical(x)),
                     df[12:42])
+  df <- df %>%
+    filter(name != "Foo")
   df.rep <- df[rep(seq(dim(df)[1]), df$count_norm), ]   # WE REPEAT THE DATA BY COUNT
   df.final <- df.rep %>%
     select(-count_norm, -name, -count) %>%
     mutate(gender = ifelse(gender=="M", "MALE", "FEMALE")) %>%
     mutate(gender = as.factor(gender))
-  levels(df.final$first_letter) <- levels(train2011.final$first_letter)
-  levels(df.final$last_letter) <- levels(train2011.final$last_letter)
-  return(df.final)
+    return(df.final)
 }
 ```
 
@@ -183,3 +193,71 @@ ggplot(df, aes(x=years, y=errorsf)) +
 > We see that it gets more difficult over time, as expected.
 
 > Very interestingly, it's only the female names that get more difficult over time. The male names remain similar.
+
+```{r}
+foo <- test1900.final %>%
+  mutate(year=1900)
+bar <- test2012.final %>%
+  mutate(year=2012) %>%
+  bind_rows(foo) %>%
+  mutate(year=as.factor(year))
+ggplot(bar, aes(x=last_letter, fill=year)) +
+  geom_bar(position="dodge")
+```
+
+```{r}
+lol <- test1900 %>%
+  filter(last_letter=='c')
+```
+
+# XGBoost
+
+We examine how XGBoost performs on the data
+
+```{r}
+xgb.train.label <- ifelse(train2011.final[,1]=="FEMALE",0,1)
+xgb.train.data <- data.matrix(train2011.final[,-1])
+dtrain <- xgb.DMatrix(data = xgb.train.data, label = xgb.train)
+xgb.test.data.2012 <- data.matrix(test2012.final[,-1])
+xgb.test.label.2012 <- ifelse(test2012.final[,1]=="FEMALE",0,1)
+dtest <- xgb.DMatrix(data=xgb.test.data.2012, label=xgb.test.label.2012)
+
+bst <- xgb.train(data = dtrain, max.depth = 6, eta = 0.1, nthread = 2, nround = 100, nfold=5,
+                 objective = "binary:logistic",
+                 watchlist=list(train=dtrain, test=dtest),
+                 verbose=TRUE)
+
+pred2012 <- as.numeric(predict(bst, xgb.test.data.2012)>0.5)
+err <- mean(pred2012 != xgb.test.label.2012); print(paste("test-error=", err))
+```
+
+```{r}
+xgb.test.data.1900 <- data.matrix(test1900.final[,-1])
+xgb.test.label.1900 <- ifelse(test1900.final[,1]=="FEMALE",0,1)
+xgb.test.data.1995 <- data.matrix(test1995.final[,-1])
+xgb.test.label.1995 <- ifelse(test1995.final[,1]=="FEMALE",0,1)
+xgb.test.data.2000 <- data.matrix(test2000.final[,-1])
+xgb.test.label.2000 <- ifelse(test2000.final[,1]=="FEMALE",0,1)
+xgb.test.data.2005 <- data.matrix(test2005.final[,-1])
+xgb.test.label.2005 <- ifelse(test2005.final[,1]=="FEMALE",0,1)
+
+pred1900 <- as.numeric(predict(bst, xgb.test.data.1900)>0.5)
+table(xgb.test.label.1900, pred1900)
+pred1995 <- as.numeric(predict(bst, xgb.test.data.1995)>0.5)
+table(xgb.test.label.1995, pred1995)
+pred2000 <- as.numeric(predict(bst, xgb.test.data.2000)>0.5)
+table(xgb.test.label.2000, pred2000)
+pred2005 <- as.numeric(predict(bst, xgb.test.data.2005)>0.5)
+table(xgb.test.label.2005, pred2005)
+```
+
+Feature importance
+
+```{r}
+# Compute feature importance matrix
+importance_matrix <- xgb.importance(names(train2011.final)[-1], model = bst)
+
+# Nice graph
+xgb.plot.importance(importance_matrix[1:10,])
+```
+
