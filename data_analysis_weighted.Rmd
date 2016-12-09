@@ -73,10 +73,10 @@ df2011b <- df2011[,12:37]   # Only letter counts
 
 ```{r}
 # Insignificant differences unless otherwise noted
-ggplot(df3, aes(x=gender, y=name_length)) +
+ggplot (df3, aes(x=gender, y=name_length)) +
   geom_boxplot()
-ggplot(df3, aes(x=gender, y=vowel_consonant_prop)) +   # girls have more vowels/consonant
-  geom_boxplot()
+ggplot(df3, aes(x=gender, y=vowel_consonant_prop)) +   
+  geom_boxplot() #girls have higher vowel/consonant ratio
 ggplot(df3, aes(x=gender, y=num_syllables)) +
   geom_boxplot()
 ggplot(df3, aes(x=gender, y=name_length)) +
@@ -91,10 +91,175 @@ ggplot(df3, aes(x=name_length, y=num_syllables, color=race)) +
 ```
 
 ```{r}
-tally(df2011$race ~ df2011$z_count, format="proportion")
+tally(df2011$race, format="proportion")
+tally(df2011$gender, format="proportion")
+tally(df2011$gender ~ df2011$a_count, format="proportion")
+tally(df2011$gender ~ df2011$b_count, format="proportion")
+tally(df2011$gender ~ df2011$c_count, format="proportion")
+tally(df2011$gender ~ df2011$d_count, format="proportion")
+tally(df2011$gender ~ df2011$e_count, format="proportion")
+tally(df2011$gender ~ df2011$f_count, format="proportion")
+tally(df2011$gender ~ df2011$g_count, format="proportion")
+tally(df2011$gender ~ df2011$h_count, format="proportion")
+tally(df2011$gender ~ df2011$i_count, format="proportion")
+tally(df2011$gender ~ df2011$j_count, format="proportion")
+tally(df2011$gender ~ df2011$k_count, format="proportion")
+tally(df2011$gender ~ df2011$l_count, format="proportion")
+tally(df2011$gender ~ df2011$m_count, format="proportion")
+tally(df2011$gender ~ df2011$n_count, format="proportion")
+tally(df2011$gender ~ df2011$o_count, format="proportion")
+tally(df2011$gender ~ df2011$p_count, format="proportion")
+tally(df2011$gender ~ df2011$q_count, format="proportion")
+tally(df2011$gender ~ df2011$r_count, format="proportion")
+tally(df2011$gender ~ df2011$s_count, format="proportion")
+tally(df2011$gender ~ df2011$t_count, format="proportion")
+tally(df2011$gender ~ df2011$u_count, format="proportion")
+tally(df2011$gender ~ df2011$v_count, format="proportion")
+tally(df2011$gender ~ df2011$w_count, format="proportion")
+tally(df2011$gender ~ df2011$x_count, format="proportion")
+tally(df2011$gender ~ df2011$y_count, format="proportion")
+tally(df2011$gender ~ df2011$z_count, format="proportion")
 ```
 
+```{r}
+#histogram(~vowel_consonant_prop | gender,data=df2011, width=.3)
+#bwplot(~vowel_consonant_prop | gender, data=df2011, main="Vowel to Consonant Ratio in Girls and Boys")
+ggplot(df3, aes(x=gender, y=vowel_consonant_prop,color=gender)) +
+  geom_boxplot() +
+  scale_color_manual(values=c("hotpink3","royalblue3")) +
+  ggtitle("Vowel to Consonant Ratio in Girls and Boys")
+```
 
+```{r}
+tally(gender~double_letter,data=df3)
+tally(gender~double_consonant,data=df3)
+ggplot(df3,aes(x=double_consonant,fill=gender)) +
+  geom_bar(position="stack") +
+  ggtitle("Amounts of Boy and Girl Names with and without Double-Consonants")
+```
+
+```{r}
+tally(gender~num_vowels,data=df3)
+ggplot(df3, aes(x=num_vowels,color=gender)) +
+  geom_histogram(binwidth=1)
+  # scale_color_manual(values=c("hotpink3","royalblue3")) +
+  # ggtitle("Vowel to Consonant Ratio in Girls and Boys")
+```
+
+```{r}
+ggplot(df3, aes(x=gender, y=vowel_prop,color=gender)) +
+  geom_boxplot() +
+  scale_color_manual(values=c("hotpink3","royalblue3")) +
+  ggtitle("Vowel Proportion in Girls and Boys")
+```
+
+```{r}
+temp <- df3
+temp$a_count <- as.factor(temp$a_count)
+ggplot(temp,aes(x=gender,fill=a_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$b_count <- as.factor(temp$b_count)
+ggplot(temp,aes(x=gender,fill=b_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$c_count <- as.factor(temp$c_count)
+ggplot(temp,aes(x=gender,fill=c_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$d_count <- as.factor(temp$d_count)
+ggplot(temp,aes(x=gender,fill=d_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$e_count <- as.factor(temp$e_count)
+ggplot(temp,aes(x=gender,fill=e_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$f_count <- as.factor(temp$f_count)
+ggplot(temp,aes(x=gender,fill=f_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$g_count <- as.factor(temp$g_count)
+ggplot(temp,aes(x=gender,fill=g_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$h_count <- as.factor(temp$h_count)
+ggplot(temp,aes(x=gender,fill=h_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$i_count <- as.factor(temp$i_count)
+ggplot(temp,aes(x=gender,fill=i_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$j_count <- as.factor(temp$j_count)
+ggplot(temp,aes(x=gender,fill=j_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$k_count <- as.factor(temp$k_count)
+ggplot(temp,aes(x=gender,fill=k_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$l_count <- as.factor(temp$l_count)
+ggplot(temp,aes(x=gender,fill=l_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$m_count <- as.factor(temp$m_count)
+ggplot(temp,aes(x=gender,fill=m_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$n_count <- as.factor(temp$n_count)
+ggplot(temp,aes(x=gender,fill=n_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$o_count <- as.factor(temp$o_count)
+ggplot(temp,aes(x=gender,fill=o_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$p_count <- as.factor(temp$p_count)
+ggplot(temp,aes(x=gender,fill=p_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$q_count <- as.factor(temp$q_count)
+ggplot(temp,aes(x=gender,fill=q_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$r_count <- as.factor(temp$r_count)
+ggplot(temp,aes(x=gender,fill=r_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$s_count <- as.factor(temp$s_count)
+ggplot(temp,aes(x=gender,fill=s_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$t_count <- as.factor(temp$t_count)
+ggplot(temp,aes(x=gender,fill=t_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$u_count <- as.factor(temp$u_count)
+ggplot(temp,aes(x=gender,fill=u_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$v_count <- as.factor(temp$v_count)
+ggplot(temp,aes(x=gender,fill=v_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$w_count <- as.factor(temp$w_count)
+ggplot(temp,aes(x=gender,fill=w_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$x_count <- as.factor(temp$x_count)
+ggplot(temp,aes(x=gender,fill=x_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$y_count <- as.factor(temp$y_count)
+ggplot(temp,aes(x=gender,fill=y_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+temp$z_count <- as.factor(temp$z_count)
+ggplot(temp,aes(x=gender,fill=z_count)) +
+  geom_bar(position="fill") +
+  ylab("proportion of that gender's names")
+```
 
 ## Clustering
 
@@ -115,13 +280,13 @@ summary(hcward.sol)
 foo <- data.frame(df2011, hcward.sol)
 
 ggplot(foo, aes(x=hcward.sol, y=vowel_prop)) +
-  geom_boxplot()
-ggplot(foo, aes(x=hcward.sol, y=name_length)) +   # Cluster 2 has shorter names
-  geom_boxplot()
+  geom_boxplot() #Cluster 1 has the highest vowel proportion
+ggplot(foo, aes(x=hcward.sol, y=name_length)) +   
+  geom_boxplot() #Clusters 1 thru 4 have progressively longer names
 ggplot(foo, aes(x=hcward.sol, y=num_syllables)) +
   geom_boxplot()
-tally(gender~hcward.sol, data=foo)   # Cluster 4 is mostly male, 3 is balanced, 1&3 mostly female
-tally(double_letter~hcward.sol, data=foo)   # Cluster 3 is the names with double letters
+tally(gender~hcward.sol, data=foo)   #Cluster 1 mostly women, 2 mostly men
+tally(double_letter~hcward.sol, data=foo) #Cluster 3 means double letters
 ```
 
 ```{r}
@@ -135,18 +300,19 @@ hcward.sol2=as.factor(cutree(hcward2, k = 6))
 summary(hcward.sol2)
 bar <- data.frame(df2011, hcward.sol2)
 
-ggplot(bar, aes(x=hcward.sol2, y=num_consonants)) +   # Cluster 1 has more consonants, cluster 6 has fewer
+ggplot(bar, aes(x=hcward.sol2, y=num_consonants)) +   
   geom_boxplot()
 ggplot(bar, aes(x=hcward.sol2, y=name_length)) +
   geom_boxplot()
 ggplot(bar, aes(x=hcward.sol2, y=consonant_prop)) +
   geom_boxplot()
 
-options(digits=1)
-tally(a_count~hcward.sol2, data=bar, format="proportion")   # cluster 6 has more a
+options(digits=3)
+tally(a_count~hcward.sol2, data=bar, format="proportion") #cluster 1 has more a
 tally(l_count~hcward.sol2, data=bar, format="proportion")
 tally(n_count~hcward.sol2, data=bar, format="proportion")
-tally(e_count~hcward.sol2, data=bar, format="proportion")   # cluster 1 has more e
+tally(r_count~hcward.sol2, data=bar, format="proportion")
+tally(e_count~hcward.sol2, data=bar, format="proportion")   # cluster 2 has more e
 
 
 tally(race~hcward.sol2, data=bar, format="proportion")   # nothing...
@@ -158,7 +324,7 @@ tally(double_letter~hcward.sol2, data=bar)
 ```{r}
 bf.control=rpart.control(minsplit=100,minbucket=20,xval=5)
 bf.treeorig=rpart(gender ~.,data=df2011a,method="class",control=bf.control)
-plot(bf.treeorig)
+plot(bf.treeorig,margin=.1)
 text(bf.treeorig,cex=.7)
 printcp(bf.treeorig)
 ```
