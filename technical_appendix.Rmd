@@ -305,9 +305,9 @@ table(df2011a$gender,bf.knn)
 
 ## XGBoost
 
-XGBoost uses sparse matrix representations of training/testing data. Luckily, it has some easy functions to produce the required data format, if we just give it the data split up into a vector of labels and a matrix of observations.
+XGBoost uses sparse matrix representations of training/testing data. Luckily, it has some easy functions to produce the required data format, if we just give it the data split up into a vector of labels and a matrix of observations. We never went through the trouble of training and testing the XGBoost on the same year, since it would involve some extra train/test set sampling code and we were reasonably confident that it would perform well on the time study section of our project (described in the last section). In any case, this is what the code to produce the training set would look like. `train2011.final` is a fixed-up version of our training set (this fixing will be described later).
 
-```{r}
+```{r, eval=FALSE}
 xgb.train.label <- ifelse(train2011.final[,1]=="FEMALE",0,1)
 xgb.train.data <- data.matrix(train2011.final[,-1])
 dtrain <- xgb.DMatrix(data = xgb.train.data, label = xgb.train.label)
@@ -428,9 +428,19 @@ train2011.rep.samp <- train2011.rep %>%
   sample_n(10000, replace=TRUE)   # Sample too large
 train2011.final <- train2011.rep.samp %>%
   select(-year, -race, -name, -count, -rank)
-rm(train2011.rep)
-rm(train2011.rep.samp)
-rm(train2011)
+```
+
+```{r, echo=FALSE}
+xgb.train.label <- ifelse(train2011.final[,1]=="FEMALE",0,1)
+xgb.train.data <- data.matrix(train2011.final[,-1])
+dtrain <- xgb.DMatrix(data = xgb.train.data, label = xgb.train.label)
+```
+
+```{r, echo=FALSE}
+bst <- xgb.train(data = dtrain, max.depth = 6, eta = 0.1, nthread = 2, nround = 100, nfold=5,
+                 objective = "binary:logistic",
+                 #watchlist=list(train=dtrain, test=dtest),
+                 verbose=TRUE)
 ```
 
 ## Random Forest
@@ -438,7 +448,7 @@ rm(train2011)
 We train a random forest model on the 2011 training data.
 
 ```{r}
-set.seed(40)
+set.seed(50)
 rf_2011=randomForest(gender ~., data=train2011.final,mtry=10,ntree=100,importance=T,proximity=T)
 ```
 
