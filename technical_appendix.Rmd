@@ -1,0 +1,181 @@
+---
+title: "Technical Appendix"
+author: "Jonathan Che and David Green"
+date: "16 December 2016"
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include=FALSE}
+# Don't delete this chunk if you are using the mosaic package
+# This loads the mosaic and dplyr packages
+require(mosaic)
+require(readr)
+require(rpart) # for classification trees
+require(class) # for kNN methods
+require(randomForest) # for random forests
+require(cluster)
+```
+
+```{r, include=FALSE}
+# Some customization.  You can alter or delete as desired (if you know what you are doing).
+
+# This changes the default colors in lattice plots.
+trellis.par.set(theme=theme.mosaic())  
+
+# knitr settings to control how R chunks work.
+require(knitr)
+opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small"    # slightly smaller font for code
+)
+```
+
+# Getting the Data
+
+We found data at [data.gov](https://catalog.data.gov/dataset/most-popular-baby-names-by-sex-and-mothers-ethnic-group-new-york-city-8c742) on the "Most Popular Baby Names by Sex and Mother's Ethnic Group, New York City". It was contained in .csv form, with variables for child name, year of birth, child gender, mother's race/ethnicity, number of children (of that name/ethnicity/gender/year), and popularity rank of the name (for that ethnicity/gender/year). (For more information about the variables, see the preliminary analysis turned in).
+
+After downloading the file as `babynames.csv`, we ran the following code to fix the inconsistent labelling of some race/ethnicity:
+
+```{r, eval=FALSE}
+df <- read_csv("babynames.csv")
+
+df2 <- df %>%
+  mutate(ETHCTY=ifelse(ETHCTY=="ASIAN AND PACI", "ASIAN AND PACIFIC ISLANDER", ETHCTY)) %>%
+  mutate(ETHCTY=ifelse(ETHCTY=="BLACK NON HISP", "BLACK NON HISPANIC", ETHCTY)) %>%
+  mutate(ETHCTY=ifelse(ETHCTY=="WHITE NON HISP", "WHITE NON HISPANIC", ETHCTY)) %>%
+  distinct()
+
+write_csv(df2, path="~/Baby-Names/babynames2.csv")
+```
+
+We then fed the code into a python script. Since this is a .Rmd, I won't include that part here (the script will be attached separately as `parsenames.py`). The script extracted a variety of characteristics from the data, including first/last letter, name length, number of syllables in the name, vowel/consonant counts/proportions, indicators for double letters/vowels/consonants, and the number of each letter (again, these are described in more detail in the preliminary analysis turned in, though vowel/consonant counts/proportions were added since then). One interesting thing to note is the syllable counter. We pulled in syllable counting script for English words from [here](http://eayd.in/?p=232). While it did not get exact syllable counts for all of the names (it is right about 50-75% of the time), we thought that it served as a decent proxy for syllable count. As it turned out, syllable count wasn't too important, but it if were, we would have done more examination into determining a better syllable counting algorithm.
+
+In this file, the python script output is saved as `babynames4.csv`. The file can be downloaded from Jonathan's [github page](https://github.com/jche/Baby-Names) if you'd like to run the code in this file.
+
+```{r}
+df <- read_csv("babynames4.csv")
+```
+
+After loading in the overall data, we did some more cleaning. We cleaned data in two different ways: unweighted and weighted. For our unweighted cleaning, we just read in the data as it was formatted originally, with one observation per child name. For our weighted cleaning, we repeated names according to their popularity, so it would be one observation per child. We used our unweighted data to explore names, and our weighted data to actually classify names.
+
+We felt that this split was appropriate for a number of reasons. When we are merely interested in exploring the features of names, we want all names to get equal representation in our analyses. When we are training a classifier, we want it to be practically useful, so actual representation of names is important.
+
+Here, we'll run the unweighted data cleaning code first (the weighted cleaning is just displayed, not run) before we go into our preliminary analyses.
+
+```{r, warning=FALSE}
+# Unweighted data cleaning
+
+# Making factors (as appropriate)
+df2 <- data.frame(lapply(df[,1:3], function(x) as.factor(x)),
+                  df[,4:6],
+                  lapply(df[,7:8], function(x) as.factor(x)),
+                  df[,9:10],
+                  lapply(df[,11:13], function(x) as.logical(x)),
+                  df[14:44])
+df3 <- df2 %>%   # Deselecting unused variables
+  select(-count, -rank, -name)
+df2011 <- df3 %>%
+  filter(year == "2011")
+df2011a <- df2011 %>%   # Only numerical variables, no letter counts
+  select(gender, name_length, vowel_consonant_prop, double_letter, double_vowel, 
+         double_consonant, num_syllables, num_consonants, num_vowels,
+         consonant_prop, vowel_prop)
+df2011b <- df2011[,12:37]   # Only letter counts
+```
+
+```{r, eval=FALSE}
+# Weighted data cleaning
+
+# Making factors (as appropriate)
+df2 <- data.frame(lapply(df[,1:3], function(x) as.factor(x)),
+                  df[,4:6],
+                  lapply(df[,7:8], function(x) as.factor(x)),
+                  df[,9:10],
+                  lapply(df[,11:13], function(x) as.logical(x)),
+                  df[14:44])
+df2.rep <- df2[rep(seq(dim(df2)[1]), df2$count), ]   # WE REPEAT THE DATA BY COUNT
+df2.rep.samp <- df2.rep %>%
+  sample_n(10000, replace=TRUE)   # Sample too large after repetition, so we sample back down
+df3 <- df2.rep.samp %>%
+  select(-count, -rank, -name)
+df2011 <- df3 %>%
+  filter(year == "2011")
+df2011a <- df2011 %>%   # Only numerical variables, no letter counts
+  select(gender, name_length, vowel_consonant_prop, double_letter, double_vowel, 
+         double_consonant, num_syllables, num_consonants, num_vowels,
+         consonant_prop, vowel_prop)
+df2011b <- df2011[,12:37]   # Only letter counts
+```
+
+# Preliminary analyses
+
+Right off the bat, some analyses were not available to us. Most of our variables were either factors or highly discrete. As such, techniques that are more focused on numerical variables (such as PCA) would not be highly applicable.
+
+We were less interested in finding underlying factors explaining our data than we were in simply finding the differences between gender/race in our data, so we turned to visualizations and classification over factor analysis and clustering (though we did try some clustering).
+
+## Visualizations
+
+We pretty much did an exhaustive search for interesting relationships in our data by making many 1-2 variable boxplots/scatterplots/barplots/tables, depending on the types of variables being compared. I've included two interesting findings below.
+
+```{r}
+ggplot(df3, aes(x=gender, y=vowel_consonant_prop)) +
+  geom_boxplot()
+```
+
+This parallel boxplot shows that female names tend to have a greater proportion of vowels, compared to consonants, than male names. It suggests that there could be separability between genders based on specific letters, or based on vowel/consonant use.
+
+```{r}
+tally(df2011$race ~ df2011$z_count, format="proportion")
+```
+
+...
+
+## Clustering
+
+We tried to perform some cluster analyses on our data. Cluster analysis is very sensitive to highly correlated variables, and many of our variables are either computed directly from each other or otherwise highly correlated for obvious reasons. We tried to cluster on two different sets of variables; one with only (vowel\_prop, double\_letter, name\_length, num\_syllables), and one with only the letter counts. Since clustering was not extremely interesting overall, I'll just include one cluster example we did with the letter counts.
+
+We chose to cluster on a single year in order to try to keep results comparable with classification on a single year. Also, we wanted to see if clusters would separate based on gender or race before adding in the year as another variable to examine.
+
+```{r}
+# Takes a long time to run, messy output, no significant correlations
+# cor(df2011b, method="kendall")
+```
+
+After checking for outliers in our data (and not finding any), we proceeded with heirarchical clustering based on Gower's distances, since the variables were effectively ordinal categoricals, being wary of the fact that some of the variables were only binary (0 or 1). We found Ward linkages to give the clearest cluster distinctions, so we used Ward's.
+
+```{r, warning=FALSE}
+dist = daisy(df2011b, metric="gower", stand=T)
+hcward = hclust(dist, method="ward.D") 
+plot(hcward)   # 6ish clusters emerge
+hcward.sol2=as.factor(cutree(hcward2, k = 6))
+summary(hcward.sol2)
+bar <- data.frame(df2011, hcward.sol2)
+
+ggplot(bar, aes(x=hcward.sol2, y=num_consonants)) +
+  geom_boxplot() # Cluster 1 has more consonants, cluster 6 has fewer
+ggplot(bar, aes(x=hcward.sol2, y=name_length)) +
+  geom_boxplot()
+ggplot(bar, aes(x=hcward.sol2, y=consonant_prop)) +
+  geom_boxplot()
+
+options(digits=1)
+tally(a_count~hcward.sol2, data=bar, format="proportion")   # cluster 6 has more a
+tally(l_count~hcward.sol2, data=bar, format="proportion")
+tally(n_count~hcward.sol2, data=bar, format="proportion")
+tally(e_count~hcward.sol2, data=bar, format="proportion")   # cluster 1 has more e
+
+
+tally(race~hcward.sol2, data=bar, format="proportion")   # nothing...
+tally(double_letter~hcward.sol2, data=bar)   
+```
+
