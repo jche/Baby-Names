@@ -4,8 +4,8 @@ author: "Jonathan Che and David Green"
 date: "16 December 2016"
 output: 
   pdf_document:
-    fig_height: 3
-    fig_width: 5
+    fig_height: 5
+    fig_width: 7
   html_document:
     fig_height: 3
     fig_width: 5
@@ -131,7 +131,10 @@ We pretty much did an exhaustive search for interesting relationships in our dat
 
 ```{r}
 ggplot(df3, aes(x=gender, y=vowel_consonant_prop)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(title="Vowel Proportion by Gender",
+       y="Vowel Proportion",
+       x="Gender")
 ```
 
 This parallel boxplot shows that female names tend to have a greater proportion of vowels, compared to consonants, than male names. It suggests that there could be separability between genders based on specific letters, or based on vowel/consonant use.
@@ -491,7 +494,7 @@ ggplot(df, aes(x=years, y=rate, group=error_type, color=error_type)) +
        y="(True) Error Rate",
        x="Year",
        color="Error Type") +
-  theme(title=element_text(size=18),
+  theme(title=element_text(size=16),
         legend.title=element_text(size=16,face="bold"),
         legend.text=element_text(size=12),
         axis.text=element_text(size=12),
@@ -564,7 +567,7 @@ ggplot(df2, aes(x=years, y=rate, group=error_type, color=error_type)) +
        y="(True) Error Rate",
        x="Year",
        color="Error Type") +
-  theme(title=element_text(size=18),
+  theme(title=element_text(size=16),
         legend.title=element_text(size=16,face="bold"),
         legend.text=element_text(size=12),
         axis.text=element_text(size=12),
