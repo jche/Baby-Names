@@ -392,20 +392,6 @@ clean_test_data <- function(df){
 }
 ```
 
-Obviously, we still need to clean all of the test data.
-
-```{r}
-test2012.final <- clean_test_data(test2012)
-test2005.final <- clean_test_data(test2005)
-test2000.final <- clean_test_data(test2000)
-test1995.final <- clean_test_data(test1995)
-test1980.final <- clean_test_data(test1980)
-test1960.final <- clean_test_data(test1960)
-test1940.final <- clean_test_data(test1940)
-test1920.final <- clean_test_data(test1920)
-test1900.final <- clean_test_data(test1900)
-```
-
 We also clean the 2011 training data (to fix the factor problem), which code I will evaluate but not display here. It outputs training data as a `train2011.final` data frame.
 
 ```{r, echo=FALSE}
@@ -441,6 +427,21 @@ bst <- xgb.train(data = dtrain, max.depth = 6, eta = 0.1, nthread = 2, nround = 
                  objective = "binary:logistic",
                  #watchlist=list(train=dtrain, test=dtest),
                  verbose=TRUE)
+```
+
+
+Obviously, we still need to clean all of the test data.
+
+```{r}
+test2012.final <- clean_test_data(test2012)
+test2005.final <- clean_test_data(test2005)
+test2000.final <- clean_test_data(test2000)
+test1995.final <- clean_test_data(test1995)
+test1980.final <- clean_test_data(test1980)
+test1960.final <- clean_test_data(test1960)
+test1940.final <- clean_test_data(test1940)
+test1920.final <- clean_test_data(test1920)
+test1900.final <- clean_test_data(test1900)
 ```
 
 ## Random Forest
