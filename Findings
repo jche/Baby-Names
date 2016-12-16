@@ -29,10 +29,23 @@ Delinquency: http://onlinelibrary.wiley.com/doi/10.1111/j.1540-6237.2009.00601.x
 Interesting findings in our data:
 Unweighted:
 -Girls have higher vowel/consonant prop (ggplot geom_boxplot)
--When Ward clustered, Cluster 2 has shorter names (ggplot geom_boxplot), Cluster 4 is mostly male, 3 is balanced, 1&3 mostly female (tally), Cluster 3 is names with double letters (tally)
+-When Ward clustered (first chunk), Cluster 2 has shorter names (ggplot geom_boxplot), Cluster 4 is mostly male, 3 is balanced, 1&3 mostly female (tally), Cluster 3 is names with double letters (tally)
+-Clustered (second chunk), cluster 6 has more "a" with (by order of decreasing "a": 6,5,2,3,4,1) and cluster 1 has more "e" (by order of decreasing "e": 1,3,4,5,2,6)
 
 Weighted:
+-Girls have higher vowel/consonant prop (ggplot geom_boxplot)
+-Ward (first chunk): Cluster 1 has the highest vowel proportion, Clusters 1 through 4 have progressively longer names, Cluster 1 mostly women, Cluster 2 mostly men, Cluster 3 means double letters
+-Ward (second chunk): Cluster 2 has more e, Cluster 1 has more a
+
+-Whites have a disproportionately high and Hispanics have a disproportionally low amount of names with z
+-Whites have a disproportionately low amount of names with 1 d
+-
+
+
+
 
 
 Classification outcomes:
 
+
+Name drift over time in popular names according to the Social Security Administration: https://www.ssa.gov/oact/babynames/top5names.html
